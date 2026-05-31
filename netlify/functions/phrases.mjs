@@ -1,4 +1,5 @@
 import { getStore } from "@netlify/blobs";
+import { incrementInsight } from "./_insights.mjs";
 
 const headers = {
   "Content-Type": "application/json; charset=utf-8",
@@ -77,6 +78,7 @@ export default async (request) => {
 
     pending.unshift(item);
     await setList(store, "pending", pending.slice(0, 500));
+    await incrementInsight(store, "suggestionsSubmitted");
 
     return json(201, { ok: true, item });
   }

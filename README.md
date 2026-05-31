@@ -7,6 +7,7 @@ This version includes:
 - PNG generation and sharing
 - Public phrase suggestions
 - Moderation page
+- Admin usage insights
 - Netlify Functions backend
 - Netlify Blobs storage
 
@@ -50,6 +51,8 @@ https://YOUR_SITE/admin.html
 
 Paste the same `ADMIN_TOKEN`.
 
+The admin page also shows basic usage insights such as views, generates, shares, downloads, copies, suggestions, and recent daily activity.
+
 ## How phrase storage works
 
 - Public suggestions are submitted to `/api/phrases`.
@@ -57,7 +60,7 @@ Paste the same `ADMIN_TOKEN`.
 - You approve/reject them in `/admin.html`.
 - Approved phrases are returned by `/api/phrases`.
 - The generator occasionally uses approved public phrases.
-- Local phrases are still stored only in the visitor's browser using `localStorage`.
+- App usage events are stored in Netlify Blobs and surfaced in `/admin.html`.
 
 ## Change watermark before launch
 

@@ -286,14 +286,6 @@
         <div class="saved-list" id="publicList"></div>
         <div class="hint">El generador usará estas frases algunas veces, además de sus combinaciones aleatorias.</div>
       </div>
-
-      <div class="card">
-        <div class="saved-header">
-          <h2>Frases locales</h2>
-          <span class="count" id="count">0</span>
-        </div>
-        <div class="saved-list" id="savedList"></div>
-      </div>
     </aside>
   </main>
 
@@ -333,8 +325,23 @@
     const DEFAULT_SITE_REFERENCE = "primerlugarmty.netlify.app";
     const DEFAULT_SHARE_LINK = "https://primerlugarmty.netlify.app/";
     let currentThing = "";
-    let savedThings = JSON.parse(localStorage.getItem("savedThings") || "[]");
     let publicThings = [];
+
+    function trackUsage(event) {
+      const payload = JSON.stringify({ event });
+
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon("/api/insights", new Blob([payload], { type: "application/json" }));
+        return;
+      }
+
+      fetch("/api/insights", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+        keepalive: true
+      }).catch(() => {});
+    }
 
     function pickRandom(items) {
       return items[Math.floor(Math.random() * items.length)];
@@ -448,7 +455,11 @@
           div.className = "saved-item";
           const select = document.createElement("button");
           select.textContent = item.phrase;
-          select.onclick = () => { currentThing = item.phrase; render(); };
+          select.onclick = () => {
+            currentThing = item.phrase;
+            trackUsage("phraseSelections");
+            render();
+          };
           div.appendChild(select);
           publicList.appendChild(div);
         });
@@ -456,26 +467,17 @@
 
     }
 
-    function generate() {
+    function generate(track = true) {
+      if (track) trackUsage("generates");
       currentThing = generateRandomThing();
       document.getElementById("copyLabel").textContent = "Copiar texto";
       document.getElementById("status").textContent = "";
       render();
     }
 
-    function addThing() {
-      const input = document.getElementById("customThing");
-      const clean = input.value.trim();
-      if (!clean) return;
-      savedThings.unshift(clean);
-      localStorage.setItem("savedThings", JSON.stringify(savedThings));
-      currentThing = clean;
-      input.value = "";
-      render();
-    }
-
     async function copyText() {
       await navigator.clipboard.writeText(getPosterText());
+      trackUsage("copies");
       document.getElementById("copyLabel").textContent = "Copiado";
       setTimeout(() => document.getElementById("copyLabel").textContent = "Copiar texto", 1300);
     }
@@ -588,6 +590,7 @@
       a.download = "nuevo-leon-primer-lugar.png";
       a.click();
       URL.revokeObjectURL(url);
+      trackUsage("downloads");
       document.getElementById("status").textContent = "Imagen descargada con referencia al sitio.";
     }
 
@@ -604,6 +607,7 @@
           url: shareLink || undefined,
           files: [file],
         });
+        trackUsage("shares");
         document.getElementById("status").textContent = "Imagen compartida.";
         return;
       }
@@ -612,7 +616,8 @@
       document.getElementById("status").textContent = "Tu navegador no permite compartir archivos directamente. Descargué la imagen para que la compartas manualmente.";
     }
 
-    generate();
+    trackUsage("views");
+    generate(false);
     loadPublicPhrases();
   </script>
 </body>

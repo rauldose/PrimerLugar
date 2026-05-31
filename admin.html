@@ -20,6 +20,13 @@
     .phrase { font-size:16px; }
     .meta { color:#aaa; font-size:12px; margin-top:4px; }
     .status { color:#ffb37c; min-height:22px; }
+    .insights-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin:16px 0; }
+    .stat { background:#050505; border:1px solid #333; border-radius:18px; padding:14px; }
+    .stat-label { color:#aaa; font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
+    .stat-value { font-size:30px; font-weight:800; margin-top:8px; }
+    table { width:100%; border-collapse:collapse; margin-top:16px; }
+    th, td { text-align:left; padding:10px 8px; border-bottom:1px solid #2b2b2b; font-size:14px; }
+    th { color:#aaa; font-size:12px; text-transform:uppercase; letter-spacing:.08em; }
   </style>
 </head>
 <body>
@@ -34,6 +41,14 @@
       <button class="refresh" onclick="saveToken()">Save token</button>
       <button class="outline" onclick="loadData()">Refresh</button>
       <div id="status" class="status"></div>
+    </div>
+
+    <div class="card">
+      <h2>Usage insights</h2>
+      <div id="insightsMeta" class="meta"></div>
+      <div id="insightsSummary" class="insights-grid"></div>
+      <div id="insightsToday" class="meta"></div>
+      <div id="insightsDays"></div>
     </div>
 
     <div class="card">
@@ -74,6 +89,85 @@
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Request failed");
       return data;
+    }
+
+    function formatNumber(value) {
+      return new Intl.NumberFormat("es-MX").format(value || 0);
+    }
+
+    function renderInsights(insights) {
+      const summary = document.getElementById("insightsSummary");
+      const meta = document.getElementById("insightsMeta");
+      const today = document.getElementById("insightsToday");
+      const days = document.getElementById("insightsDays");
+
+      summary.innerHTML = "";
+      days.innerHTML = "";
+
+      if (!insights) {
+        meta.textContent = "No usage data yet.";
+        today.textContent = "";
+        return;
+      }
+
+      const stats = [
+        ["Views", insights.totals.views],
+        ["Generates", insights.totals.generates],
+        ["Shares", insights.totals.shares],
+        ["Downloads", insights.totals.downloads],
+        ["Copies", insights.totals.copies],
+        ["Suggestions", insights.totals.suggestionsSubmitted],
+        ["Pending", insights.totals.pendingPhrases],
+        ["Approved", insights.totals.approvedPhrases]
+      ];
+
+      for (const [label, value] of stats) {
+        const card = document.createElement("div");
+        card.className = "stat";
+        card.innerHTML = `<div class="stat-label">${label}</div><div class="stat-value">${formatNumber(value)}</div>`;
+        summary.appendChild(card);
+      }
+
+      meta.textContent = insights.lastUpdatedAt
+        ? `Last activity: ${new Date(insights.lastUpdatedAt).toLocaleString("es-MX")}`
+        : "No tracked activity yet.";
+
+      today.textContent = `Today: ${formatNumber(insights.today.views)} views, ${formatNumber(insights.today.generates)} generates, ${formatNumber(insights.today.shares + insights.today.downloads + insights.today.copies)} share/download/copy actions, ${formatNumber(insights.today.suggestionsSubmitted)} suggestions, ${formatNumber(insights.today.approvals + insights.today.rejections)} moderation actions.`;
+
+      if (!insights.recentDays || insights.recentDays.length === 0) return;
+
+      const table = document.createElement("table");
+      table.innerHTML = `
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Views</th>
+            <th>Generates</th>
+            <th>Shares</th>
+            <th>Downloads</th>
+            <th>Copies</th>
+            <th>Suggestions</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      `;
+
+      const tbody = table.querySelector("tbody");
+      for (const item of insights.recentDays) {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${item.date}</td>
+          <td>${formatNumber(item.views)}</td>
+          <td>${formatNumber(item.generates)}</td>
+          <td>${formatNumber(item.shares)}</td>
+          <td>${formatNumber(item.downloads)}</td>
+          <td>${formatNumber(item.copies)}</td>
+          <td>${formatNumber(item.suggestionsSubmitted)}</td>
+        `;
+        tbody.appendChild(row);
+      }
+
+      days.appendChild(table);
     }
 
     function renderList(elementId, items, kind) {
@@ -126,6 +220,7 @@
       try {
         setStatus("Loading...");
         const data = await api("/api/moderate");
+        renderInsights(data.insights);
         renderList("pending", data.pending, "pending");
         renderList("approved", data.approved, "approved");
         setStatus("Loaded.");

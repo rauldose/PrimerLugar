@@ -1,4 +1,5 @@
 import { getStore } from "@netlify/blobs";
+import { incrementInsight, readInsights, summarizeInsights } from "./_insights.mjs";
 
 const headers = {
   "Content-Type": "application/json; charset=utf-8",
@@ -40,7 +41,11 @@ export default async (request) => {
   if (request.method === "GET") {
     const pending = await getList(store, "pending");
     const approved = await getList(store, "approved");
-    return json(200, { pending, approved });
+    const insights = summarizeInsights(await readInsights(store), {
+      pendingCount: pending.length,
+      approvedCount: approved.length
+    });
+    return json(200, { pending, approved, insights });
   }
 
   if (request.method === "POST") {
@@ -67,18 +72,21 @@ export default async (request) => {
       approved.unshift({ ...item, approvedAt: new Date().toISOString() });
       await setList(store, "pending", pending);
       await setList(store, "approved", approved.slice(0, 500));
+      await incrementInsight(store, "approvals");
       return json(200, { ok: true, pending, approved });
     }
 
     if (action === "reject") {
       pending = pending.filter((x) => x.id !== id);
       await setList(store, "pending", pending);
+      await incrementInsight(store, "rejections");
       return json(200, { ok: true, pending, approved });
     }
 
     if (action === "deleteApproved") {
       approved = approved.filter((x) => x.id !== id);
       await setList(store, "approved", approved);
+      await incrementInsight(store, "approvedPhraseDeletes");
       return json(200, { ok: true, pending, approved });
     }
   }
