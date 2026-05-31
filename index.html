@@ -330,6 +330,7 @@
       " sin perder la fe", " como si fuera tradición familiar", " porque así se hace aquí", " aunque nadie lo pidió"
     ];
 
+    const DEFAULT_SITE_REFERENCE = "primerlugar.mx";
     let currentThing = "";
     let savedThings = JSON.parse(localStorage.getItem("savedThings") || "[]");
     let publicThings = [];
@@ -362,7 +363,7 @@
 
     function getSiteReference() {
       const siteReferenceInput = document.getElementById("siteReference");
-      return siteReferenceInput ? siteReferenceInput.value.trim() : "primerlugar.mx";
+      return siteReferenceInput ? siteReferenceInput.value.trim() : DEFAULT_SITE_REFERENCE;
     }
 
     function getPosterText() {
