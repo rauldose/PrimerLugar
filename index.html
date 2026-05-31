@@ -330,7 +330,8 @@
       " sin perder la fe", " como si fuera tradición familiar", " porque así se hace aquí", " aunque nadie lo pidió"
     ];
 
-    const DEFAULT_SITE_REFERENCE = "primerlugar.mx";
+    const DEFAULT_SITE_REFERENCE = "primerlugarmty.netlify.app";
+    const DEFAULT_SHARE_LINK = "https://primerlugarmty.netlify.app/";
     let currentThing = "";
     let savedThings = JSON.parse(localStorage.getItem("savedThings") || "[]");
     let publicThings = [];
@@ -366,6 +367,14 @@
       return siteReferenceInput ? siteReferenceInput.value.trim() : DEFAULT_SITE_REFERENCE;
     }
 
+    function getShareLink() {
+      const site = getSiteReference();
+      if (!site) return "";
+      if (/^https?:\/\//i.test(site)) return site;
+      const cleanSite = site.replace(/^\/+|\/+$/g, "");
+      return cleanSite ? `https://${cleanSite}/` : DEFAULT_SHARE_LINK;
+    }
+
     function getTemplateText() {
       return document.getElementById("template").value.replace("{thing}", currentThing);
     }
@@ -377,8 +386,8 @@
 
     function getPosterText() {
       const text = getTemplateText();
-      const site = getSiteReference();
-      return site ? `${text}\n\nGenerado en ${site}` : text;
+      const shareLink = getShareLink();
+      return shareLink ? `${text}\n\nGenerado en ${shareLink}` : text;
     }
 
     async function loadPublicPhrases() {
@@ -585,12 +594,14 @@
     async function shareImage() {
       const blob = await buildPosterBlob();
       const file = new File([blob], "nuevo-leon-primer-lugar.png", { type: "image/png" });
-      const site = getSiteReference();
+      const shareLink = getShareLink();
+      const shareText = `${getTemplateSubtitle()}${shareLink ? `. Generado en ${shareLink}` : ""}`;
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
           title: "Nuevo León Primer Lugar",
-          text: `${getTemplateSubtitle()}${site ? `. Generado en ${site}` : ""}`,
+          text: shareText,
+          url: shareLink || undefined,
           files: [file],
         });
         document.getElementById("status").textContent = "Imagen compartida.";
