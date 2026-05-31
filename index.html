@@ -224,11 +224,6 @@
       color:#aaa;
       margin-top:8px;
     }
-    .admin-link {
-      color:#ffb37c;
-      font-size:13px;
-      text-decoration:none;
-    }
   </style>
 </head>
 <body>
@@ -263,12 +258,6 @@
 
     <aside>
       <div class="card">
-        <h2>Referencia del sitio</h2>
-        <input id="siteReference" value="primerlugar.mx" disabled />
-        <div class="hint">La marca de agua está fija y no puede ser modificada por los usuarios.</div>
-      </div>
-
-      <div class="card">
         <h2>Sugerir frase pública</h2>
         <div class="row">
           <input id="suggestionThing" placeholder="ej. tener tráfico hasta en domingo" onkeydown="if(event.key==='Enter') submitSuggestion()" />
@@ -276,15 +265,6 @@
         </div>
         <div class="hint">Las frases sugeridas quedan pendientes de aprobación antes de entrar al generador público.</div>
         <div id="suggestionStatus" class="status"></div>
-      </div>
-
-      <div class="card">
-        <h2>Guardar frase solo en mi navegador</h2>
-        <div class="row">
-          <input id="customThing" placeholder="ej. sobrevivir a Gonzalitos" onkeydown="if(event.key==='Enter') addThing()" />
-          <button class="primary" onclick="addThing()">＋</button>
-        </div>
-        <div class="hint">Esto usa localStorage: solo existe en este dispositivo/navegador.</div>
       </div>
 
       <div class="card">
@@ -313,7 +293,6 @@
           <span class="count" id="count">0</span>
         </div>
         <div class="saved-list" id="savedList"></div>
-        <a class="admin-link" href="/admin.html">Admin moderation</a>
       </div>
     </aside>
   </main>
@@ -351,6 +330,7 @@
       " sin perder la fe", " como si fuera tradición familiar", " porque así se hace aquí", " aunque nadie lo pidió"
     ];
 
+    const DEFAULT_SITE_REFERENCE = "primerlugar.mx";
     let currentThing = "";
     let savedThings = JSON.parse(localStorage.getItem("savedThings") || "[]");
     let publicThings = [];
@@ -382,11 +362,21 @@
     }
 
     function getSiteReference() {
-      return document.getElementById("siteReference").value.trim();
+      const siteReferenceInput = document.getElementById("siteReference");
+      return siteReferenceInput ? siteReferenceInput.value.trim() : DEFAULT_SITE_REFERENCE;
+    }
+
+    function getTemplateText() {
+      return document.getElementById("template").value.replace("{thing}", currentThing);
+    }
+
+    function getTemplateSubtitle() {
+      const lines = getTemplateText().split("\n").map((line) => line.trim()).filter(Boolean);
+      return lines[lines.length - 1] || `Primer lugar en ${currentThing}`;
     }
 
     function getPosterText() {
-      const text = document.getElementById("template").value.replace("{thing}", currentThing);
+      const text = getTemplateText();
       const site = getSiteReference();
       return site ? `${text}\n\nGenerado en ${site}` : text;
     }
@@ -430,11 +420,10 @@
 
     function render() {
       const site = getSiteReference();
-      document.getElementById("posterSubtitle").textContent = "Primer lugar en " + currentThing;
+      document.getElementById("posterSubtitle").textContent = getTemplateSubtitle();
       document.getElementById("posterWatermark").textContent = site;
       document.getElementById("posterWatermark").style.display = site ? "block" : "none";
       document.getElementById("fullText").textContent = getPosterText();
-      document.getElementById("count").textContent = savedThings.length;
       document.getElementById("publicCount").textContent = publicThings.length;
 
       const publicList = document.getElementById("publicList");
@@ -456,38 +445,6 @@
         });
       }
 
-      const list = document.getElementById("savedList");
-      list.innerHTML = "";
-      if (savedThings.length === 0) {
-        const empty = document.createElement("div");
-        empty.className = "empty";
-        empty.textContent = "Aquí aparecen frases guardadas solo en tu navegador.";
-        list.appendChild(empty);
-        return;
-      }
-
-      savedThings.forEach((thing, index) => {
-        const div = document.createElement("div");
-        div.className = "saved-item";
-
-        const select = document.createElement("button");
-        select.textContent = thing;
-        select.onclick = () => { currentThing = thing; render(); };
-
-        const remove = document.createElement("button");
-        remove.className = "outline";
-        remove.textContent = "🗑";
-        remove.onclick = () => {
-          savedThings.splice(index, 1);
-          localStorage.setItem("savedThings", JSON.stringify(savedThings));
-          if (currentThing === thing) currentThing = generateRandomThing();
-          render();
-        };
-
-        div.appendChild(select);
-        div.appendChild(remove);
-        list.appendChild(div);
-      });
     }
 
     function generate() {
@@ -590,7 +547,7 @@
       ctx.font = "700 42px Arial, sans-serif";
       ctx.fillStyle = "#fff";
       ctx.textAlign = "center";
-      const subtitle = `Primer lugar en ${currentThing}`;
+      const subtitle = getTemplateSubtitle();
       const lines = wrapText(ctx, subtitle, 1180).slice(0, 3);
       const startY = 790 - (lines.length - 1) * 26;
       lines.forEach((line, index) => ctx.fillText(line, width / 2, startY + index * 52));
@@ -633,7 +590,7 @@
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
           title: "Nuevo León Primer Lugar",
-          text: `Primer lugar en ${currentThing}${site ? `. Generado en ${site}` : ""}`,
+          text: `${getTemplateSubtitle()}${site ? `. Generado en ${site}` : ""}`,
           files: [file],
         });
         document.getElementById("status").textContent = "Imagen compartida.";
