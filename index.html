@@ -366,8 +366,17 @@
       return siteReferenceInput ? siteReferenceInput.value.trim() : DEFAULT_SITE_REFERENCE;
     }
 
+    function getTemplateText() {
+      return document.getElementById("template").value.replace("{thing}", currentThing);
+    }
+
+    function getTemplateSubtitle() {
+      const lines = getTemplateText().split("\n").map((line) => line.trim()).filter(Boolean);
+      return lines[lines.length - 1] || `Primer lugar en ${currentThing}`;
+    }
+
     function getPosterText() {
-      const text = document.getElementById("template").value.replace("{thing}", currentThing);
+      const text = getTemplateText();
       const site = getSiteReference();
       return site ? `${text}\n\nGenerado en ${site}` : text;
     }
@@ -411,7 +420,7 @@
 
     function render() {
       const site = getSiteReference();
-      document.getElementById("posterSubtitle").textContent = "Primer lugar en " + currentThing;
+      document.getElementById("posterSubtitle").textContent = getTemplateSubtitle();
       document.getElementById("posterWatermark").textContent = site;
       document.getElementById("posterWatermark").style.display = site ? "block" : "none";
       document.getElementById("fullText").textContent = getPosterText();
@@ -538,7 +547,7 @@
       ctx.font = "700 42px Arial, sans-serif";
       ctx.fillStyle = "#fff";
       ctx.textAlign = "center";
-      const subtitle = `Primer lugar en ${currentThing}`;
+      const subtitle = getTemplateSubtitle();
       const lines = wrapText(ctx, subtitle, 1180).slice(0, 3);
       const startY = 790 - (lines.length - 1) * 26;
       lines.forEach((line, index) => ctx.fillText(line, width / 2, startY + index * 52));
@@ -581,7 +590,7 @@
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         await navigator.share({
           title: "Nuevo León Primer Lugar",
-          text: `Primer lugar en ${currentThing}${site ? `. Generado en ${site}` : ""}`,
+          text: `${getTemplateSubtitle()}${site ? `. Generado en ${site}` : ""}`,
           files: [file],
         });
         document.getElementById("status").textContent = "Imagen compartida.";
