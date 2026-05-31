@@ -369,7 +369,7 @@
 
     function getShareLink() {
       const site = getSiteReference();
-      if (!site) return "";
+      if (!site) return DEFAULT_SHARE_LINK;
       if (/^https?:\/\//i.test(site)) return site;
       const cleanSite = site.replace(/^\/+|\/+$/g, "");
       return cleanSite ? `https://${cleanSite}/` : DEFAULT_SHARE_LINK;
