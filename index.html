@@ -361,7 +361,8 @@
     }
 
     function getSiteReference() {
-      return document.getElementById("siteReference").value.trim();
+      const siteReferenceInput = document.getElementById("siteReference");
+      return siteReferenceInput ? siteReferenceInput.value.trim() : "primerlugar.mx";
     }
 
     function getPosterText() {
@@ -413,7 +414,6 @@
       document.getElementById("posterWatermark").textContent = site;
       document.getElementById("posterWatermark").style.display = site ? "block" : "none";
       document.getElementById("fullText").textContent = getPosterText();
-      document.getElementById("count").textContent = savedThings.length;
       document.getElementById("publicCount").textContent = publicThings.length;
 
       const publicList = document.getElementById("publicList");
@@ -435,38 +435,6 @@
         });
       }
 
-      const list = document.getElementById("savedList");
-      list.innerHTML = "";
-      if (savedThings.length === 0) {
-        const empty = document.createElement("div");
-        empty.className = "empty";
-        empty.textContent = "Aquí aparecen frases guardadas solo en tu navegador.";
-        list.appendChild(empty);
-        return;
-      }
-
-      savedThings.forEach((thing, index) => {
-        const div = document.createElement("div");
-        div.className = "saved-item";
-
-        const select = document.createElement("button");
-        select.textContent = thing;
-        select.onclick = () => { currentThing = thing; render(); };
-
-        const remove = document.createElement("button");
-        remove.className = "outline";
-        remove.textContent = "🗑";
-        remove.onclick = () => {
-          savedThings.splice(index, 1);
-          localStorage.setItem("savedThings", JSON.stringify(savedThings));
-          if (currentThing === thing) currentThing = generateRandomThing();
-          render();
-        };
-
-        div.appendChild(select);
-        div.appendChild(remove);
-        list.appendChild(div);
-      });
     }
 
     function generate() {
