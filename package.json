@@ -1,0 +1,16 @@
+{
+  "name": "nuevo-leon-primer-lugar",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "netlify dev",
+    "build": "echo \"Static site: no build needed\""
+  },
+  "dependencies": {
+    "@netlify/blobs": "^9.1.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.38.1"
+  }
+}

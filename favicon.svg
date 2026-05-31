@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect width="128" height="128" rx="24" fill="#050505"/>
+  <path d="M30 42 L30 28 L45 39 L58 20 L64 41 L70 20 L83 39 L98 28 L98 42 Z" fill="#f05a00"/>
+  <text x="64" y="72" font-family="Arial Black, Arial" font-size="28" font-weight="900" text-anchor="middle" fill="#ffffff">NL</text>
+  <text x="64" y="98" font-family="Arial Black, Arial" font-size="22" font-weight="900" text-anchor="middle" fill="#f05a00">#1</text>
+</svg>

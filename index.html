@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nuevo León Primer Lugar En...</title>
+
+  <meta name="description" content="Genera y comparte memes de Nuevo León Primer Lugar En..." />
+  <meta property="og:title" content="Nuevo León Primer Lugar En..." />
+  <meta property="og:description" content="Genera tu meme regio de Nuevo León Primer Lugar." />
+  <meta property="og:image" content="/preview.png" />
+  <meta property="og:url" content="/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="theme-color" content="#000000" />
+
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+  <style>
+    :root {
+      --bg:#050505;
+      --panel:#111;
+      --border:#2b2b2b;
+      --orange:#f05a00;
+      --orange2:#ff6b00;
+      --text:#fff;
+      --muted:#b8b8b8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      padding:24px;
+    }
+    .app {
+      max-width:1200px;
+      margin:0 auto;
+      display:grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap:24px;
+    }
+    @media (max-width:900px){ .app{grid-template-columns:1fr;} }
+    .eyebrow {
+      color:var(--orange2);
+      letter-spacing:.35em;
+      text-transform:uppercase;
+      font-weight:800;
+      font-size:13px;
+    }
+    h1 {
+      font-size: clamp(32px, 5vw, 56px);
+      margin:12px 0 8px;
+      line-height:1;
+    }
+    p { color:var(--muted); line-height:1.45; }
+    .poster {
+      margin-top:24px;
+      border:1px solid var(--border);
+      border-radius:28px;
+      overflow:hidden;
+      background:#000;
+      box-shadow:0 24px 80px rgba(0,0,0,.45);
+    }
+    .poster-inner {
+      aspect-ratio:16/9;
+      position:relative;
+      padding:clamp(28px,5vw,56px);
+      display:flex;
+      align-items:center;
+      background:#000;
+    }
+    .glow {
+      position:absolute;
+      left:0; right:0; top:52%;
+      height:4px;
+      background:#ffd642;
+      filter:blur(8px);
+      opacity:.8;
+    }
+    .crown {
+      position:absolute;
+      top:22px;
+      left:50%;
+      transform:translateX(-50%);
+      width:66px;
+      height:22px;
+      background:var(--orange);
+      clip-path:polygon(0 100%,0 45%,18% 70%,33% 25%,50% 65%,67% 25%,82% 70%,100% 45%,100% 100%);
+    }
+    .big {
+      position:relative;
+      z-index:1;
+      font-weight:1000;
+      text-transform:uppercase;
+      letter-spacing:-.055em;
+      line-height:.84;
+      font-size:clamp(46px,9vw,118px);
+      width:100%;
+    }
+    .white { color:white; }
+    .orange { color:var(--orange); margin-top:.16em; }
+    .subtitle {
+      margin-top:28px;
+      text-align:center;
+      font-size:clamp(20px,3vw,34px);
+      letter-spacing:-.02em;
+      color:#fff;
+      text-transform:none;
+      line-height:1.15;
+    }
+    .watermark {
+      position:absolute;
+      right:16px;
+      bottom:16px;
+      border-radius:999px;
+      background:rgba(255,255,255,.10);
+      padding:8px 14px;
+      font-size:13px;
+      font-weight:800;
+      color:rgba(255,255,255,.92);
+      backdrop-filter: blur(8px);
+    }
+    .buttons {
+      display:flex;
+      flex-wrap:wrap;
+      gap:12px;
+      margin-top:18px;
+    }
+    button {
+      border:0;
+      border-radius:16px;
+      padding:12px 18px;
+      cursor:pointer;
+      font-weight:800;
+      font-size:15px;
+    }
+    .primary { background:var(--orange); color:white; }
+    .secondary { background:#eee; color:#111; }
+    .outline { background:var(--panel); color:white; border:1px solid var(--border); }
+    .card {
+      background:rgba(24,24,24,.85);
+      border:1px solid var(--border);
+      border-radius:28px;
+      padding:20px;
+      margin-bottom:18px;
+    }
+    h2 { margin:0 0 14px; }
+    .row { display:flex; gap:10px; }
+    input, select {
+      width:100%;
+      border:1px solid #3a3a3a;
+      background:#070707;
+      color:white;
+      border-radius:16px;
+      padding:13px 14px;
+      font-size:15px;
+      outline:none;
+    }
+    input:focus, select:focus { border-color:var(--orange); }
+    input:disabled { opacity:.75; cursor:not-allowed; color:#aaa; }
+    pre {
+      white-space:pre-wrap;
+      background:#000;
+      border-radius:16px;
+      padding:16px;
+      color:#d0d0d0;
+      margin:12px 0 0;
+    }
+    .count {
+      display:inline-block;
+      background:rgba(240,90,0,.18);
+      color:#ffb37c;
+      border-radius:999px;
+      padding:5px 10px;
+      font-size:13px;
+      font-weight:800;
+    }
+    .saved-header {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:12px;
+    }
+    .saved-list {
+      max-height:240px;
+      overflow:auto;
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+    }
+    .saved-item {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      border:1px solid var(--border);
+      background:#070707;
+      border-radius:16px;
+      padding:9px 10px;
+    }
+    .saved-item button:first-child {
+      background:transparent;
+      color:#ddd;
+      padding:4px;
+      text-align:left;
+      font-weight:600;
+    }
+    .empty {
+      border:1px dashed #555;
+      border-radius:16px;
+      padding:16px;
+      color:#aaa;
+      font-size:14px;
+    }
+    .status {
+      margin-top:10px;
+      color:#ffb37c;
+      font-size:14px;
+      min-height:20px;
+    }
+    .hint {
+      font-size:13px;
+      color:#aaa;
+      margin-top:8px;
+    }
+    .admin-link {
+      color:#ffb37c;
+      font-size:13px;
+      text-decoration:none;
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section>
+      <div class="eyebrow">Meme generator</div>
+      <h1>Nuevo León Primer Lugar En...</h1>
+      <p>Genera frases aleatorias, descarga una imagen PNG o compártela con referencia visible al sitio.</p>
+
+      <div class="poster">
+        <div class="poster-inner">
+          <div class="glow"></div>
+          <div class="crown"></div>
+          <div class="big">
+            <div class="white">Nuevo León</div>
+            <div class="orange">Primer</div>
+            <div class="orange">Lugar</div>
+            <div id="posterSubtitle" class="subtitle">Primer lugar en seguridad</div>
+          </div>
+          <div id="posterWatermark" class="watermark">primerlugar.mx</div>
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button class="primary" onclick="generate()">🔀 Generar</button>
+        <button class="secondary" onclick="shareImage()">📤 Compartir imagen</button>
+        <button class="outline" onclick="downloadImage()">🖼 Descargar PNG</button>
+        <button class="secondary" onclick="copyText()">📋 <span id="copyLabel">Copiar texto</span></button>
+      </div>
+      <div id="status" class="status"></div>
+    </section>
+
+    <aside>
+      <div class="card">
+        <h2>Referencia del sitio</h2>
+        <input id="siteReference" value="primerlugar.mx" disabled />
+        <div class="hint">La marca de agua está fija y no puede ser modificada por los usuarios.</div>
+      </div>
+
+      <div class="card">
+        <h2>Sugerir frase pública</h2>
+        <div class="row">
+          <input id="suggestionThing" placeholder="ej. tener tráfico hasta en domingo" onkeydown="if(event.key==='Enter') submitSuggestion()" />
+          <button class="primary" onclick="submitSuggestion()">Enviar</button>
+        </div>
+        <div class="hint">Las frases sugeridas quedan pendientes de aprobación antes de entrar al generador público.</div>
+        <div id="suggestionStatus" class="status"></div>
+      </div>
+
+      <div class="card">
+        <h2>Guardar frase solo en mi navegador</h2>
+        <div class="row">
+          <input id="customThing" placeholder="ej. sobrevivir a Gonzalitos" onkeydown="if(event.key==='Enter') addThing()" />
+          <button class="primary" onclick="addThing()">＋</button>
+        </div>
+        <div class="hint">Esto usa localStorage: solo existe en este dispositivo/navegador.</div>
+      </div>
+
+      <div class="card">
+        <h2>Formato</h2>
+        <select id="template" onchange="render()">
+          <option value="NUEVO LEÓN&#10;PRIMER&#10;LUGAR&#10;&#10;Primer lugar en {thing}">Variante 1</option>
+          <option value="NUEVO LEÓN&#10;PRIMER&#10;LUGAR&#10;&#10;Campeones nacionales en {thing}">Variante 2</option>
+          <option value="NUEVO LEÓN&#10;PRIMER&#10;LUGAR&#10;&#10;Líder absoluto en {thing}">Variante 3</option>
+          <option value="NUEVO LEÓN&#10;PRIMER&#10;LUGAR&#10;&#10;Orgullosamente número uno en {thing}">Variante 4</option>
+        </select>
+        <pre id="fullText"></pre>
+      </div>
+
+      <div class="card">
+        <div class="saved-header">
+          <h2>Frases públicas aprobadas</h2>
+          <span class="count" id="publicCount">0</span>
+        </div>
+        <div class="saved-list" id="publicList"></div>
+        <div class="hint">El generador usará estas frases algunas veces, además de sus combinaciones aleatorias.</div>
+      </div>
+
+      <div class="card">
+        <div class="saved-header">
+          <h2>Frases locales</h2>
+          <span class="count" id="count">0</span>
+        </div>
+        <div class="saved-list" id="savedList"></div>
+        <a class="admin-link" href="/admin.html">Admin moderation</a>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    const subjects = [
+      "seguridad", "tráfico", "carnita asada", "climas", "glorietas", "baches", "puentes", "tacos", "montañas", "calor",
+      "lluvias", "reuniones", "filas", "queso", "polvo", "rutas alternas", "asadores", "terrenos", "plazas", "rotondas",
+      "facturas", "juntas", "estacionamientos", "conos naranjas", "obras viales", "sobremesas", "botas", "camionetas", "regios", "compadres"
+    ];
+
+    const actions = [
+      "decir que todo queda a 20 minutos", "hacer carne asada por cualquier motivo", "prender el clima a 16 grados",
+      "sobrevivir a la Constitución", "convertir una lluvia en deporte extremo", "ponerle queso a todo",
+      "hacer fila sin saber para qué", "manejar como clasificación de Fórmula 1", "planear juntas para planear otras juntas",
+      "hacer que cualquier tema termine en asado", "subir al cerro y contarlo como terapia", "usar botas aunque no haya rancho",
+      "ir al Costco como paseo familiar", "creer que San Pedro es otro país", "llamar ‘compadre’ a desconocidos",
+      "tomar café aunque haga 42 grados", "presumir montañas en cada foto", "poner un negocio en una plaza escondida",
+      "decir ‘ocupamos’ para todo", "inventar retornos imposibles", "tener tráfico hasta en domingo"
+    ];
+
+    const adjectives = [
+      "premium", "nivel jefe final", "con denominación de origen", "sin explicación lógica", "con salsa extra",
+      "de alto rendimiento", "con orgullo regio", "en modo industrial", "para expertos", "con vista al cerro",
+      "apocalíptico", "innecesariamente intenso", "de exportación", "con clima prendido", "muy compadre"
+    ];
+
+    const places = [
+      "en Gonzalitos", "en Constitución", "en San Pedro", "en Apodaca", "en San Nicolás", "en Monterrey",
+      "en una plaza comercial", "rumbo al trabajo", "después de llover", "antes del partido", "en hora pico", "un domingo familiar"
+    ];
+
+    const connectors = [
+      "", "", "", " mientras todos dicen ‘ahorita’", " con una coca bien fría", " y todavía llegar tarde",
+      " sin perder la fe", " como si fuera tradición familiar", " porque así se hace aquí", " aunque nadie lo pidió"
+    ];
+
+    let currentThing = "";
+    let savedThings = JSON.parse(localStorage.getItem("savedThings") || "[]");
+    let publicThings = [];
+
+    function pickRandom(items) {
+      return items[Math.floor(Math.random() * items.length)];
+    }
+
+    function generateRandomThing() {
+      if (publicThings.length > 0 && Math.random() < 0.35) {
+        return pickRandom(publicThings).phrase;
+      }
+
+      const pattern = Math.floor(Math.random() * 6);
+      const subject = pickRandom(subjects);
+      const action = pickRandom(actions);
+      const adjective = pickRandom(adjectives);
+      const place = pickRandom(places);
+      const connector = pickRandom(connectors);
+
+      switch (pattern) {
+        case 0: return `${subject} ${adjective}${connector}`;
+        case 1: return `${action}${connector}`;
+        case 2: return `${subject} ${place} ${adjective}`;
+        case 3: return `${action} ${place}`;
+        case 4: return `${subject}, ${action}, y decir que era necesario`;
+        default: return `${subject} ${adjective} ${place}${connector}`;
+      }
+    }
+
+    function getSiteReference() {
+      return document.getElementById("siteReference").value.trim();
+    }
+
+    function getPosterText() {
+      const text = document.getElementById("template").value.replace("{thing}", currentThing);
+      const site = getSiteReference();
+      return site ? `${text}\n\nGenerado en ${site}` : text;
+    }
+
+    async function loadPublicPhrases() {
+      try {
+        const response = await fetch("/api/phrases");
+        if (!response.ok) throw new Error("No se pudieron cargar frases públicas");
+        const data = await response.json();
+        publicThings = Array.isArray(data.approved) ? data.approved : [];
+      } catch {
+        publicThings = [];
+      }
+      render();
+    }
+
+    async function submitSuggestion() {
+      const input = document.getElementById("suggestionThing");
+      const status = document.getElementById("suggestionStatus");
+      const phrase = input.value.trim();
+
+      if (!phrase) return;
+      status.textContent = "Enviando...";
+
+      try {
+        const response = await fetch("/api/phrases", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ phrase })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "No se pudo guardar");
+
+        input.value = "";
+        status.textContent = "Frase enviada. Queda pendiente de aprobación.";
+      } catch (error) {
+        status.textContent = "Error: " + error.message;
+      }
+    }
+
+    function render() {
+      const site = getSiteReference();
+      document.getElementById("posterSubtitle").textContent = "Primer lugar en " + currentThing;
+      document.getElementById("posterWatermark").textContent = site;
+      document.getElementById("posterWatermark").style.display = site ? "block" : "none";
+      document.getElementById("fullText").textContent = getPosterText();
+      document.getElementById("count").textContent = savedThings.length;
+      document.getElementById("publicCount").textContent = publicThings.length;
+
+      const publicList = document.getElementById("publicList");
+      publicList.innerHTML = "";
+      if (publicThings.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "Todavía no hay frases públicas aprobadas.";
+        publicList.appendChild(empty);
+      } else {
+        publicThings.slice(0, 20).forEach((item) => {
+          const div = document.createElement("div");
+          div.className = "saved-item";
+          const select = document.createElement("button");
+          select.textContent = item.phrase;
+          select.onclick = () => { currentThing = item.phrase; render(); };
+          div.appendChild(select);
+          publicList.appendChild(div);
+        });
+      }
+
+      const list = document.getElementById("savedList");
+      list.innerHTML = "";
+      if (savedThings.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "Aquí aparecen frases guardadas solo en tu navegador.";
+        list.appendChild(empty);
+        return;
+      }
+
+      savedThings.forEach((thing, index) => {
+        const div = document.createElement("div");
+        div.className = "saved-item";
+
+        const select = document.createElement("button");
+        select.textContent = thing;
+        select.onclick = () => { currentThing = thing; render(); };
+
+        const remove = document.createElement("button");
+        remove.className = "outline";
+        remove.textContent = "🗑";
+        remove.onclick = () => {
+          savedThings.splice(index, 1);
+          localStorage.setItem("savedThings", JSON.stringify(savedThings));
+          if (currentThing === thing) currentThing = generateRandomThing();
+          render();
+        };
+
+        div.appendChild(select);
+        div.appendChild(remove);
+        list.appendChild(div);
+      });
+    }
+
+    function generate() {
+      currentThing = generateRandomThing();
+      document.getElementById("copyLabel").textContent = "Copiar texto";
+      document.getElementById("status").textContent = "";
+      render();
+    }
+
+    function addThing() {
+      const input = document.getElementById("customThing");
+      const clean = input.value.trim();
+      if (!clean) return;
+      savedThings.unshift(clean);
+      localStorage.setItem("savedThings", JSON.stringify(savedThings));
+      currentThing = clean;
+      input.value = "";
+      render();
+    }
+
+    async function copyText() {
+      await navigator.clipboard.writeText(getPosterText());
+      document.getElementById("copyLabel").textContent = "Copiado";
+      setTimeout(() => document.getElementById("copyLabel").textContent = "Copiar texto", 1300);
+    }
+
+    function wrapText(ctx, text, maxWidth) {
+      const words = text.split(" ");
+      const lines = [];
+      let line = "";
+      for (const word of words) {
+        const testLine = line ? `${line} ${word}` : word;
+        if (ctx.measureText(testLine).width > maxWidth && line) {
+          lines.push(line);
+          line = word;
+        } else {
+          line = testLine;
+        }
+      }
+      if (line) lines.push(line);
+      return lines;
+    }
+
+    function roundRect(ctx, x, y, width, height, radius) {
+      ctx.beginPath();
+      ctx.moveTo(x + radius, y);
+      ctx.arcTo(x + width, y, x + width, y + height, radius);
+      ctx.arcTo(x + width, y + height, x, y + height, radius);
+      ctx.arcTo(x, y + height, x, y, radius);
+      ctx.arcTo(x, y, x + width, y, radius);
+      ctx.closePath();
+    }
+
+    async function buildPosterBlob() {
+      const siteReference = getSiteReference();
+      const width = 1600;
+      const height = 900;
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+
+      ctx.fillStyle = "#000";
+      ctx.fillRect(0, 0, width, height);
+
+      const gradient = ctx.createLinearGradient(0, height * 0.52, width, height * 0.52);
+      gradient.addColorStop(0, "rgba(255, 190, 0, 0)");
+      gradient.addColorStop(0.5, "rgba(255, 220, 40, 0.8)");
+      gradient.addColorStop(1, "rgba(255, 190, 0, 0)");
+      ctx.fillStyle = gradient;
+      ctx.filter = "blur(8px)";
+      ctx.fillRect(220, height * 0.52, width - 440, 10);
+      ctx.filter = "none";
+
+      ctx.fillStyle = "#f05a00";
+      ctx.beginPath();
+      ctx.moveTo(760, 115);
+      ctx.lineTo(760, 85);
+      ctx.lineTo(790, 108);
+      ctx.lineTo(815, 68);
+      ctx.lineTo(842, 108);
+      ctx.lineTo(870, 68);
+      ctx.lineTo(895, 108);
+      ctx.lineTo(925, 85);
+      ctx.lineTo(925, 115);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.textAlign = "left";
+      ctx.textBaseline = "top";
+      ctx.font = "900 142px Arial Black, Impact, Arial, sans-serif";
+      ctx.fillStyle = "#fff";
+      ctx.fillText("NUEVO LEÓN", 245, 140);
+
+      ctx.font = "900 230px Arial Black, Impact, Arial, sans-serif";
+      ctx.fillStyle = "#f05a00";
+      ctx.fillText("PRIMER", 245, 270);
+      ctx.fillText("LUGAR", 245, 515);
+
+      ctx.font = "700 42px Arial, sans-serif";
+      ctx.fillStyle = "#fff";
+      ctx.textAlign = "center";
+      const subtitle = `Primer lugar en ${currentThing}`;
+      const lines = wrapText(ctx, subtitle, 1180).slice(0, 3);
+      const startY = 790 - (lines.length - 1) * 26;
+      lines.forEach((line, index) => ctx.fillText(line, width / 2, startY + index * 52));
+
+      if (siteReference) {
+        ctx.font = "700 26px Arial, sans-serif";
+        const metrics = ctx.measureText(siteReference);
+        const pillWidth = metrics.width + 46;
+        const pillHeight = 52;
+        const x = width - pillWidth - 34;
+        const y = height - pillHeight - 28;
+        ctx.fillStyle = "rgba(255,255,255,0.11)";
+        roundRect(ctx, x, y, pillWidth, pillHeight, 26);
+        ctx.fill();
+        ctx.fillStyle = "rgba(255,255,255,0.92)";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(siteReference, x + pillWidth / 2, y + pillHeight / 2 + 1);
+      }
+
+      return new Promise((resolve) => canvas.toBlob(resolve, "image/png", 0.95));
+    }
+
+    async function downloadImage() {
+      const blob = await buildPosterBlob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "nuevo-leon-primer-lugar.png";
+      a.click();
+      URL.revokeObjectURL(url);
+      document.getElementById("status").textContent = "Imagen descargada con referencia al sitio.";
+    }
+
+    async function shareImage() {
+      const blob = await buildPosterBlob();
+      const file = new File([blob], "nuevo-leon-primer-lugar.png", { type: "image/png" });
+      const site = getSiteReference();
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          title: "Nuevo León Primer Lugar",
+          text: `Primer lugar en ${currentThing}${site ? `. Generado en ${site}` : ""}`,
+          files: [file],
+        });
+        document.getElementById("status").textContent = "Imagen compartida.";
+        return;
+      }
+
+      await downloadImage();
+      document.getElementById("status").textContent = "Tu navegador no permite compartir archivos directamente. Descargué la imagen para que la compartas manualmente.";
+    }
+
+    generate();
+    loadPublicPhrases();
+  </script>
+</body>
+</html>

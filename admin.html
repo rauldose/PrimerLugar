@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin - Nuevo León Primer Lugar</title>
+  <style>
+    body { margin:0; background:#050505; color:#fff; font-family:Arial, Helvetica, sans-serif; padding:24px; }
+    main { max-width:1000px; margin:0 auto; }
+    a { color:#ffb37c; }
+    h1 { font-size:42px; margin:0 0 8px; }
+    .card { background:#151515; border:1px solid #2b2b2b; border-radius:24px; padding:18px; margin:18px 0; }
+    input { width:100%; border:1px solid #3a3a3a; background:#050505; color:#fff; border-radius:14px; padding:12px; font-size:15px; }
+    button { border:0; border-radius:14px; padding:10px 14px; cursor:pointer; font-weight:800; margin:4px; }
+    .approve { background:#2ecc71; color:#041007; }
+    .reject { background:#e74c3c; color:#fff; }
+    .refresh { background:#f05a00; color:#fff; }
+    .outline { background:#222; color:#fff; border:1px solid #444; }
+    .item { display:flex; justify-content:space-between; gap:12px; align-items:center; background:#050505; border:1px solid #333; border-radius:16px; padding:12px; margin:8px 0; }
+    .phrase { font-size:16px; }
+    .meta { color:#aaa; font-size:12px; margin-top:4px; }
+    .status { color:#ffb37c; min-height:22px; }
+  </style>
+</head>
+<body>
+  <main>
+    <a href="/">← Volver al generador</a>
+    <h1>Admin moderation</h1>
+    <p>Approve or reject user-submitted phrases.</p>
+
+    <div class="card">
+      <h2>Admin token</h2>
+      <input id="token" type="password" placeholder="Paste ADMIN_TOKEN from Netlify environment variables" />
+      <button class="refresh" onclick="saveToken()">Save token</button>
+      <button class="outline" onclick="loadData()">Refresh</button>
+      <div id="status" class="status"></div>
+    </div>
+
+    <div class="card">
+      <h2>Pending phrases</h2>
+      <div id="pending"></div>
+    </div>
+
+    <div class="card">
+      <h2>Approved phrases</h2>
+      <div id="approved"></div>
+    </div>
+  </main>
+
+  <script>
+    const tokenInput = document.getElementById("token");
+    tokenInput.value = localStorage.getItem("adminToken") || "";
+
+    function saveToken() {
+      localStorage.setItem("adminToken", tokenInput.value.trim());
+      setStatus("Token saved locally in this browser.");
+      loadData();
+    }
+
+    function setStatus(message) {
+      document.getElementById("status").textContent = message;
+    }
+
+    async function api(path, options = {}) {
+      const token = tokenInput.value.trim();
+      const response = await fetch(path, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+          ...(options.headers || {})
+        }
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Request failed");
+      return data;
+    }
+
+    function renderList(elementId, items, kind) {
+      const el = document.getElementById(elementId);
+      el.innerHTML = "";
+
+      if (!items || items.length === 0) {
+        el.innerHTML = "<p>No items.</p>";
+        return;
+      }
+
+      for (const item of items) {
+        const div = document.createElement("div");
+        div.className = "item";
+
+        const text = document.createElement("div");
+        text.innerHTML = `<div class="phrase"></div><div class="meta">${item.createdAt || ""}</div>`;
+        text.querySelector(".phrase").textContent = item.phrase;
+
+        const actions = document.createElement("div");
+
+        if (kind === "pending") {
+          const approve = document.createElement("button");
+          approve.className = "approve";
+          approve.textContent = "Approve";
+          approve.onclick = () => moderate(item.id, "approve");
+
+          const reject = document.createElement("button");
+          reject.className = "reject";
+          reject.textContent = "Reject";
+          reject.onclick = () => moderate(item.id, "reject");
+
+          actions.appendChild(approve);
+          actions.appendChild(reject);
+        } else {
+          const del = document.createElement("button");
+          del.className = "reject";
+          del.textContent = "Delete";
+          del.onclick = () => moderate(item.id, "deleteApproved");
+          actions.appendChild(del);
+        }
+
+        div.appendChild(text);
+        div.appendChild(actions);
+        el.appendChild(div);
+      }
+    }
+
+    async function loadData() {
+      try {
+        setStatus("Loading...");
+        const data = await api("/api/moderate");
+        renderList("pending", data.pending, "pending");
+        renderList("approved", data.approved, "approved");
+        setStatus("Loaded.");
+      } catch (error) {
+        setStatus("Error: " + error.message);
+      }
+    }
+
+    async function moderate(id, action) {
+      try {
+        setStatus("Saving...");
+        await api("/api/moderate", {
+          method: "POST",
+          body: JSON.stringify({ id, action })
+        });
+        await loadData();
+      } catch (error) {
+        setStatus("Error: " + error.message);
+      }
+    }
+
+    if (tokenInput.value) loadData();
+  </script>
+</body>
+</html>
