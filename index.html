@@ -258,12 +258,6 @@
 
     <aside>
       <div class="card">
-        <h2>Referencia del sitio</h2>
-        <input id="siteReference" value="primerlugar.mx" disabled />
-        <div class="hint">La marca de agua está fija y no puede ser modificada por los usuarios.</div>
-      </div>
-
-      <div class="card">
         <h2>Sugerir frase pública</h2>
         <div class="row">
           <input id="suggestionThing" placeholder="ej. tener tráfico hasta en domingo" onkeydown="if(event.key==='Enter') submitSuggestion()" />
@@ -271,15 +265,6 @@
         </div>
         <div class="hint">Las frases sugeridas quedan pendientes de aprobación antes de entrar al generador público.</div>
         <div id="suggestionStatus" class="status"></div>
-      </div>
-
-      <div class="card">
-        <h2>Guardar frase solo en mi navegador</h2>
-        <div class="row">
-          <input id="customThing" placeholder="ej. sobrevivir a Gonzalitos" onkeydown="if(event.key==='Enter') addThing()" />
-          <button class="primary" onclick="addThing()">＋</button>
-        </div>
-        <div class="hint">Esto usa localStorage: solo existe en este dispositivo/navegador.</div>
       </div>
 
       <div class="card">
